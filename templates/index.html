@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+</head>
+<body>
+<div>
+    {% for column in columns %}
+        <input type="checkbox" id="checkbox-{{ column }}" name="{{ column }}" value="{{ column }}" checked>
+        <label class="table-column-label" for="checkbox-{{ column }}">{{ column }}</label><br>
+    {% endfor %}
+</div>
+<div>
+    <button type="button" onclick="queryTable()">Query</button><br>
+</div>
+<div id="table-container">
+    {% include 'table.html' %}
+</div>
+<script src="/index.js" type="text/javascript"></script>
+</body>
+</html>
