@@ -1,14 +1,29 @@
-<table id="queryTable">
-    <tr>
-        {% for column in columns %}
-            <th>{{ column }}</th>
-        {% endfor %}
-    </tr>
-    {% for tuple in tuples %}
+<div>
+    <p>
+        {{ query }}
+    </p>
+</div>
+<table id="queryTable" class="table">
+    <thead>
         <tr>
-            {% for value in tuple %}
-                <td>{{ value }}</td>
-            {%  endfor %}
+            {% for column in columns %}
+                <th>
+                    <p>{{ column }}<p>
+                    <div style="display: block;">
+                        <button type="button" value="asc" onclick="selectOrder('{{ column }}', 'asc');">asc</button>
+                        <button type="button" value="desc" onclick="selectOrder('{{ column }}', 'desc');">desc</button>
+                    </div>
+                </th>
+            {% endfor %}
         </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
+        {% for tuple in tuples %}
+            <tr>
+                {% for value in tuple %}
+                    <td>{{ value }}</td>
+                {%  endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>

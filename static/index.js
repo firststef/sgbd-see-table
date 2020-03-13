@@ -1,3 +1,5 @@
+var orderDict = {};
+
 async function postData(url = '', data = {}) {
     // Default options are marked with *
     const response = await fetch(url, {
@@ -35,9 +37,26 @@ function getSelectedColumns(){
     return nameArray;
 }
 
+function getFilters(){
+    var filters = {};
+    let els = document.getElementsByClassName("filter-box");
+    Array.prototype.forEach.call(els,
+        filter => {
+           let cnm = filter.value.toString();
+            filters[filter.getAttribute("for")] = cnm;
+        }
+    );
+    return filters;
+}
+
 function queryTable(){
-    postData('/query_request', { columns: getSelectedColumns() })
+    postData('/query_request', { columns: getSelectedColumns(), filters: getFilters(), sort: orderDict})
         .then((data) => {
             document.getElementById("table-container").innerHTML = data;
         });
+}
+
+function selectOrder(column, what){
+    orderDict[column] = what;
+    console.log(orderDict);
 }
