@@ -48,6 +48,9 @@ def query_db(selected_columns: list, sort_by: dict, filter_values: dict):
 @app.route('/')
 def home():
     tuples, query = query_db(table_columns, {}, {})
+
+    print(cursor.callfunc('recommandation', str, [321]))
+
     return render_template('index.html', tuples=tuples, columns=table_columns, query=query)
 
 
