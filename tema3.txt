@@ -1,0 +1,50 @@
+CREATE OR REPLACE FUNCTION recommandation (p_id_stud IN INTEGER)
+RETURN varchar AS
+    CURSOR lista_prietenii_prietenilor IS
+        select unique ID_STUDENT2, NUME, PRENUME from PRIETENI
+            join STUDENTI on PRIETENI.ID_STUDENT2 = STUDENTI.ID
+            where ID_STUDENT1 in (
+                SELECT unique ID_STUDENT2 from PRIETENI where ID_STUDENT1=p_id_stud
+            )
+            and ID_STUDENT2 not in (
+                SELECT unique ID_STUDENT2 from PRIETENI where ID_STUDENT1=p_id_stud
+            );
+
+    v_json varchar(1000);
+    v_std_linie lista_prietenii_prietenilor%ROWTYPE;
+    v_nr_aparitii NUMBER;
+    v_i NUMBER := 0;
+BEGIN
+    v_json := '[';
+
+    OPEN lista_prietenii_prietenilor;
+    LOOP
+        FETCH lista_prietenii_prietenilor INTO v_std_linie;
+        EXIT WHEN lista_prietenii_prietenilor%NOTFOUND OR v_i >= 5;
+
+        select count(*) into v_nr_aparitii from PRIETENI
+            where ID_STUDENT1 in (
+                SELECT unique ID_STUDENT2 from PRIETENI where ID_STUDENT1=p_id_stud
+            )
+            and ID_STUDENT2=v_std_linie.ID_STUDENT2;
+
+        v_json := v_json || '{"nume":"' || v_std_linie.nume ||
+                  '","prenume":"'|| v_std_linie.prenume ||
+                  '","id":' || v_std_linie.ID_STUDENT2||
+                  ',"popularitate":'||v_nr_aparitii||
+                  '},';
+        v_i := v_i + 1;
+    END LOOP;
+    CLOSE lista_prietenii_prietenilor;
+
+    v_json := v_json || ']';
+
+    DBMS_OUTPUT.PUT_LINE(v_json);
+    return v_json;
+END;
+
+DECLARE
+    v_rasp VARCHAR(1000);
+BEGIN
+    v_rasp := recommandation(321);
+end;
