@@ -1,0 +1,14 @@
+create or replace function throw_exc
+return int as
+    student_inexistent EXCEPTION;
+    PRAGMA EXCEPTION_INIT(student_inexistent, -20001);
+begin
+    raise student_inexistent;
+    return 1;
+end;
+
+Python:
+try:
+	cursor.execute("select throw_exc() from dual")
+except cx_Oracle.Error:
+	print("Caught exception")

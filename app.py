@@ -65,6 +65,12 @@ def query_request():
         tuples, query = query_db(query_columns, request.json["sort"], request.json["filters"])
     except BaseException:
         return 'query error'
+
+    try:
+        cursor.execute("select throw_exc() from dual")
+    except cx_Oracle.Error:
+        print("Caught exception")
+
     return render_template('table.html', tuples=tuples, columns=query_columns, query=query)
 
 
