@@ -1,16 +1,30 @@
 import cx_Oracle
 from flask import Flask, escape, request, render_template, send_from_directory
+import pickle
 
 app = Flask(__name__, static_folder='static')
 
 table_name = 'studenti'
 
-connection = cx_Oracle.connect("student", "STUDENT", "localhost/XE")
+connection = cx_Oracle.connect("student", "sql", "localhost/XE")
 cursor = connection.cursor()
 
 get_columns = "select column_name from USER_TAB_COLUMNS where table_name = \'" + table_name.upper() + "\'"
 cursor.execute(get_columns)
 table_columns = [t[0] for t in [*cursor]]
+
+
+class SerializeTestClass:
+    def __init__(self):
+        self.id = 0
+        self.name = "nume"
+        self.array = [1, 2, 3, 4]
+
+    def __eq__(self, other):
+        if not isinstance(other, SerializeTestClass):
+            return NotImplemented
+
+        return self.id == other.id and self.name == other.name and self.array == other.array
 
 
 def query_db(selected_columns: list, sort_by: dict, filter_values: dict):
@@ -70,6 +84,22 @@ def query_request():
         cursor.execute("select throw_exc() from dual")
     except cx_Oracle.Error:
         print("Caught exception")
+
+    ser_object = SerializeTestClass()
+    #cursor.execute("""
+    #    insert into obiecte_binare (id, obiect)
+    #    values (:blobid, :blob)
+    #""", blobid=1, blob=pickle.dumps(ser_object))
+
+    #connection.commit()
+
+    cursor.execute("select id, obiect from obiecte_binare where id = :blobid", blobid=1)
+    for row in cursor:
+        id, blobj = [*row]
+        ser_object2 = pickle.loads(blobj.read())
+        print(ser_object2)
+        print(ser_object == ser_object2)
+        break
 
     return render_template('table.html', tuples=tuples, columns=query_columns, query=query)
 
