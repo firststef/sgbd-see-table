@@ -1,0 +1,27 @@
+class SerializeTestClass:
+    def __init__(self):
+        self.id = 0
+        self.name = "nume"
+        self.array = [1, 2, 3, 4]
+
+    def __eq__(self, other):
+        if not isinstance(other, SerializeTestClass):
+            return NotImplemented
+
+        return self.id == other.id and self.name == other.name and self.array == other.array
+
+ser_object = SerializeTestClass()
+cursor.execute("""
+    insert into obiecte_binare (id, obiect)
+    values (:blobid, :blob)
+""", blobid=1, blob=pickle.dumps(ser_object))
+
+connection.commit()
+
+cursor.execute("select id, obiect from obiecte_binare where id = :blobid", blobid=1)
+for row in cursor:
+	id, blobj = [*row]
+	ser_object2 = pickle.loads(blobj.read())
+	print(ser_object2)
+	print(ser_object == ser_object2)
+	break
